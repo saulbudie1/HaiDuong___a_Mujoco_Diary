@@ -18,6 +18,17 @@
 <a href="Tests/Test8/Test8.md"><img src="Tests/Test8/x0.5_y0.5_yaw3.0/trail_x0.5_y0.5_yaw3.0_ckpt_91750400.png" width="480" alt="Test 8, bird's-eye trail for command 0.5, 0.5, 3"></a>
 <br><sub>bird's-eye trail: body centre and head tip, start to end &nbsp;·&nbsp; command x = 0.5, y = 0.5, yaw = 3 &nbsp;·&nbsp; about 9 laps in 20 s</sub>
 
+<br>
+
+<table align="center">
+<tr>
+<td align="center" width="560">
+<a href="Declaration.md"><b>What I use and where it comes from</b></a>
+<br><sub>libraries and versions &nbsp;·&nbsp; Matplotlib, pandas &nbsp;·&nbsp; MuJoCo Playground, Brax, JAX &nbsp;·&nbsp; Go1 model &nbsp;·&nbsp; WSL2 Ubuntu &nbsp;·&nbsp; use of AI &nbsp;·&nbsp; references</sub>
+</td>
+</tr>
+</table>
+
 </div>
 
 <!-- Keep the fun fact as the last section of this README. New sections go above it. -->
