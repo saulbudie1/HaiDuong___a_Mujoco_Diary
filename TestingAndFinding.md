@@ -482,10 +482,27 @@ Each of the 16 checkpoints of the Test 7 run (`~/go1_test8`, every 8.2M steps) r
 **Findings**
 - **Seeds 2 to 5 have the same reward shape as seed 0:** about 19 to 20 for a long stretch, a climb from about 50 to 59M steps, 26 to 27 at the end. "Reward 21" is a rough marker I chose (in seed 0 the robot stood at 20.1 and walked at 22.4). **They have not been rolled out, so walking is not confirmed.**
 - **Seed 1 collapsed.** Reward rose to about 18.7 by 18M (the standing level), dropped to about 12 at about 34M, bumped to 16 at 75M, then fell to about 0.2 by 85M and stayed there. The sweep (16 checkpoints, 1 / 0 / 0) gave `track` 0.018 to 0.0195 and forward speed near zero at every checkpoint, so it never walked. A reward that low suggests very short episodes (such as falling over), but I have not seen a video.
-- **Confounded:** seed 1 was the only run with 60 evaluations. It is not known whether the collapse comes from the seed or the schedule. Next: rerun seed 1 with 31 evaluations, and another seed with 60.
+- **Confounded:** seed 1 was the only run with 60 evaluations. It is not known whether the collapse comes from the seed or the schedule. Next: rerun seed 1 with 31 evaluations, and another seed with 60. (Done, see Test 9.1 below.)
 - In the Colab Test 4 the reward also dropped late in training. It may have been the same kind of collapse (not known).
 - **Timing:** training was faster than estimated (about 74k steps/s with 60 evaluations, about 81k steps/s with 31). Evaluation overhead is smaller than the 15 to 35 s per evaluation I had guessed.
 - A seed is the starting number for all the randomness in training (initial weights, random commands, noise). Same seed and settings give nearly the same run (not bit-identical on a GPU).
+
+### Oct 22 (trained) / Oct 25 (rolled out) — Test 9.1: seed or schedule? (flat ground, no video)
+
+**Setup:** the Test 9 settings with one change at a time: seed 1 again with 31 evaluations (`~/go1_seed1_e31`, 98.3M steps) and seeds 2 and 3 with 60 evaluations (`~/go1_seed2_e60`, `~/go1_seed3_e60`, 96.7M steps). Training about 21 to 22 minutes each. Rollout: `go1_final` on 1 / 0 / 0, `--no-video`, one 20 s episode. Full write-up in `Tests/Test9.1/Test9.1.md`.
+
+| Run | Evaluations | Final reward | `track` | Forward speed | Result |
+|---|---|---|---|---|---|
+| seed 1 | 31 | 27.06 | 0.968 | 0.953 m/s | Walks |
+| seed 2 | 60 | 20.05 | 0.0187 | 0.001 m/s | Stands still |
+| seed 3 | 60 | 12.78 | 0.0187 | 0.001 m/s | Stands still |
+
+**Findings**
+- **Seed 1 is not a broken seed.** The same seed trains to 27.06 with 31 evaluations and walks. With 60 evaluations it collapsed (Test 9).
+- **All three 60-evaluation runs failed to walk** (seed 1 collapsed to 0.17, seeds 2 and 3 stuck below 21 and stand still). The walking runs used 16 or 31 evaluations. In my runs, this points at the 60-evaluation schedule and not the seed.
+- **Standing, not fallen:** the saved motion data shows the 60-evaluation robots at about 0.3 m body height and upright at the end, moving 2 to 3 cm in 20 s. No video was checked.
+- **Reward misleads again:** seed 3 ended at 12.78 and seed 2 at 20.05, yet both give `track` 0.0187.
+- **Caveats:** one rollout per policy, one command, 3 runs at 60 against 6 at 16 or 31. Changing `num_evals` also changes the reset schedule and the random path, so it is "the schedule plus its side effects". The reset-chunk explanation (a reset every 40 steps at 60 evaluations) is my reading of the Brax code and is not tested. Intermediate values such as 45 are not tried.
 
 ### Oct 22 — The perceptive-quadruped paper (arXiv 2410.03076): how vision is used
 

@@ -4,7 +4,9 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 ---
 
-## Oct 20 — I first used Colab for simulation.
+<details>
+<summary><h2>Oct 20 — I first used Colab for simulation.</h2></summary>
+
 **Background**I haven't used colab in ages (not since that deepfake video where you can input a photo to make it sing). So I spent the afternoon refamiliarizing with the website.
 
 **Test 1 (6M steps).** The robot took a few steps for about 8 seconds, then fell over. It was about 6million steps that is too little training.
@@ -17,9 +19,13 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 **Late night.** I read the notebook code and found the plot cuts off the data. My "18M" and "25M" runs both really ran about 29.5M steps. Then Colab ran out of compute while I was trying 100M.
 
+</details>
+
 ---
 
-## Oct 21 — Laptop integration and the first walking not talking
+<details>
+<summary><h2>Oct 21 — Laptop integration and the first walking not talking</h2></summary>
+
 
 **Switch to Ubuntu.** I installed Ubuntu inside Windows (WSL2), Claude guided my way to get my RTX 5060 working with JAX and Warp, and moved training off Colab. The laptop ran about twice as fast as Colab's free GPU.
 
@@ -47,11 +53,17 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 **Where walking starts.** I rolled out all 16 checkpoints of the 120M run. The robot stood still up to 57.3M steps and was walking at 65.5M, so the switch is somewhere in that gap and it is sudden. Walking was a bit slow and drifting at 65.5M, and got polished by about 80M. Reward alone had been misleading: it was already 17 at 16M steps while the robot stood still.
 
+</details>
+
 ---
 
-## Oct 22 — More seeds, and one run that collapsed
+<details open>
+<summary><h2>Oct 22 — More seeds, and one run that collapsed</h2></summary>
+
 
 **Test 9 (seeds).** I trained five more runs on flat ground (seeds 1 to 5) to see whether walking shows up reliably. Training was faster than I guessed, about 20 minutes each. Four of them (seeds 2 to 5) had reward curves like the Test 7 run: about 19 to 20 for a long stretch, then a climb that starts around 52 to 59M steps and ends at 26 to 27. I have not rolled them out yet, so I have not confirmed that they walk. Seed 1 broke. Its reward rose to 18.7 by 18M steps, dropped to about 12, and then fell to 0.2 by 85M. No checkpoint walked, and its speed stayed near zero. But seed 1 was also the only run with 60 evaluations (the others had 31), so I cannot tell whether it was the seed or the setup. In my Colab Test 4 the reward also fell late in training, and that may have been the same kind of collapse, but I do not know.
+
+**Test 9.1 (seed or setup?).** To split the two, I trained seed 1 again with 31 evaluations, and seeds 2 and 3 with 60. Seed 1 with 31 evaluations reached 27.06, and seeds 2 and 3 with 60 stayed below 21 (they ended at 20.05 and 12.78). On Oct 25 I rolled them out on 1 / 0 / 0: seed 1 (31 evaluations) **walks** (`track` 0.968, about 0.95 m/s), and both 60-evaluation runs **stand still** (`track` 0.0187, moved 2 to 3 cm in 20 s, still upright). So seed 1 is not a broken seed, and in my runs the 60-evaluation setup is what stops the walking. Reward misled me again: the run that ended at 12.78 and the one that ended at 20.05 behave the same. I haven't proven why (my guess is that the environments reset every 40 steps instead of 80, but I haven't tested that), and it is three runs against six.
 
 **What a seed is.** The starting number for all the randomness in training (starting network weights, random commands, noise). Same seed and settings give nearly the same run, and a different seed is different luck. Every run before Test 9 used seed 0.
 
@@ -59,9 +71,13 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 **Accessories.** Next I want to make three weightless accessories for the robot: a pumpkin head, a cone birthday hat and a backpack. They are visual only, so they cannot change how it moves.
 
+</details>
+
 ---
 
-## What I know now
+<details open>
+<summary><h2>What I know now</h2></summary>
+
 
 - Reward isn't enough. Standing still can score about 19, and walking scored 26. I have to measure speed and watch the video.
 - At about 29.5M steps the robot stands still. At about 100M it walks. (One run each, so I say "in my runs".)
@@ -75,17 +91,24 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 - The robot model is 13 mesh pieces from 5 STL files, joined by 12 hinges, with an invisible simpler shape set used for the physics. Looks and physics are separate.
 - The motors act like springs at the hinges, and the solver is set to one pass per step on purpose, so the "solver iterations" warnings are normal.
 - In the one run I checked with rollouts, walking started between 57.3M and 65.5M steps, suddenly. Four other seeds have reward curves that suggest about 52 to 59M, but I have not rolled them out. About 80M to 100M steps is a sensible budget, and more barely helps (the reward was flat from 98M to 123M).
-- Training can collapse: seed 1's reward fell to 0.2. Whether that was the seed or its 60-evaluation setup is not known.
+- Training can collapse: seed 1's reward fell to 0.2. Test 9.1 suggests it was the 60-evaluation setup and not the seed: seed 1 with 31 evaluations walks (`track` 0.968), and two other seeds with 60 evaluations stand still. Three runs against six, one rollout each, and the reason is not tested.
+- A reward of 12.8 and a reward of 20.0 can both be a robot that stands still (`track` 0.0187 for both).
 - The vision in the lab's paper is a tiny simulated depth image (read from the PDF text), with no real-robot experiment described.
 
-## Still don't know
+</details>
+
+<details>
+<summary><h2>Still don't know</h2></summary>
+
 
 - Whether seeds 2 to 5 actually walk, and whether the switch lands in the same window for each (needs rollouts).
-- Whether seed 1's collapse was the seed or the 60-evaluation schedule.
+- Why the 60-evaluation schedule stops the walking (my guess is the reset every 40 steps, not tested), and where between 31 and 60 the line is.
 - Whether it walks backward and turns in place (the diagonals work).
 - How much a different random seed changes things, and whether the drift following the sideways command is real.
 - Whether more `num_envs` (8192) changes the result.
 - Whether the full 111M steps on rough ground would change the result (the reward was still rising), and why the GPU ran out of memory at epoch 14.
+
+</details>
 
 ## Next
 
