@@ -45,6 +45,24 @@ A second rollout on the new ground, this time saving every joint angle, gave `tr
 - **How they were made:** `rollout_terrain.py` now also saves every joint angle per step, and [Scripts/render_qpos.py](../../Scripts/render_qpos.py) (written by Claude) draws them on the CPU with the same cameras and options as `rollout.py`. The contact points in the videos are recomputed by MuJoCo on the CPU, so they can differ slightly from the GPU simulation's.
 - **Rendering this ground is slow:** about 17 minutes per camera (500 frames, about 2 s per frame), 53 minutes for the three videos. The 4-million-cell heightfield is the likely reason, but I did not test that. Plan for it before rendering more commands or policies on it.
 
+## Same rollout with the cone hat (`_cone` files)
+
+Same policy, command, ground and random numbers, with the visual-only cone hat ([go1_mjx_feetonly_cone.xml](../../Assets/Decos/go1_mjx_feetonly_cone.xml)) on the robot. `rollout_terrain.py --cone` swaps the robot file in Playground's asset dictionary, so the ground XML is unchanged. Every file name ends in `_cone`, in the same folder [x1.0_y0.0_yaw0.0/](./x1.0_y0.0_yaw0.0/).
+
+| | No hat | With hat |
+|---|---|---|
+| `track` | 0.9199 | **0.9203** |
+| Forward speed | 0.927 m/s | 0.930 m/s |
+| Distance in 20 s | 18.53 m | 18.57 m |
+| Body height (min / mean / max) | 0.323 / 0.350 / 0.381 m | 0.323 / 0.350 / 0.378 m |
+| Most tilted (1 = level) | 0.988 | 0.991 |
+| Fell | no | no |
+
+- **The hat loads and runs in Playground.** This was the open question from the cone model. The model compiles with the extra mesh geom and the policy walks as before.
+- **No visible effect on the walking, as expected.** The hat has no collisions and no mass, and the numbers are the same as the no-hat run to within the run-to-run spread seen between the first two no-hat runs (0.9205 and 0.9199). I did not repeat the hat run, so I cannot separate "no effect" from "small effect smaller than that spread". The body turned -12.5 degrees over the episode against about -8 without the hat; one run each, so I would not read that as an effect of the hat.
+- **Videos (640 x 480, 20 s):** [side](./x1.0_y0.0_yaw0.0/side_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final_cone.mp4), [top](./x1.0_y0.0_yaw0.0/top_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final_cone.mp4), [track](./x1.0_y0.0_yaw0.0/track_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final_cone.mp4). Plots: [motion](./x1.0_y0.0_yaw0.0/motion_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final_cone.png), [trail](./x1.0_y0.0_yaw0.0/trail_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final_cone.png). I looked at one frame from the side and track videos: the yellow cone sits upright on the front of the trunk through the stride.
+- **Render time:** the three cameras ran as three parallel processes and finished in about 20 minutes in total, against 53 minutes one after another.
+
 ## What this shows and what it does not
 
 **Supported (in my runs):**
@@ -69,5 +87,5 @@ A second rollout on the new ground, this time saving every joint angle, gave `tr
 - Results: [rollout_terrain_results.txt](./rollout_terrain_results.txt)
 - Ground: [SimpleUniFormRoughGround_1.xml](../../Assets/Grounds/SimpleUniFormRoughGround_1.xml) and its previews in `Assets/Grounds/`
 - Scripts: [rollout_terrain.py](../../Scripts/rollout_terrain.py), [render_qpos.py](../../Scripts/render_qpos.py), plus the existing [plot_motion.py](../../Scripts/plot_motion.py) and [plot_trail.py](../../Scripts/plot_trail.py) (trail with `--head-length 2`)
-- Videos, plots and motion data: [x1.0_y0.0_yaw0.0/](./x1.0_y0.0_yaw0.0/); preview GIFs: [preview/](./preview/)
+- Videos, plots and motion data (including the `_cone` files): [x1.0_y0.0_yaw0.0/](./x1.0_y0.0_yaw0.0/); preview GIFs: [preview/](./preview/)
 - The first (three-ground) run's motion data (`terrain_*.npz`) and full console log: WSL `~/go1_test7`, not copied here
