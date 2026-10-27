@@ -1,0 +1,25 @@
+=== SimpleUniFormRoughGround_1 16:40
+ground: /mnt/c/Users/Admin/Documents/HaiDuong/Assets/Grounds/SimpleUniFormRoughGround_1.xml   command: 1.0 0.0 0.0   checkpoint: go1_final   (64 s)
+mean track: 0.9205
+mean linvel (body frame): [ 0.9292253  -0.00542369  0.02113183]
+distance from start: 18.58 m in 20 s
+body height: min 0.323  mean 0.350  max 0.381 m
+upright (1 = level): min 0.991  at the end 0.998
+fell (episode terminated): no
+=== flat 16:41
+ground: flat   command: 1.0 0.0 0.0   checkpoint: go1_final   (60 s)
+mean track: 0.9404
+mean linvel (body frame): [0.9616731  0.00872479 0.01741677]
+distance from start: 19.20 m in 20 s
+body height: min 0.288  mean 0.315  max 0.328 m
+upright (1 = level): min 0.998  at the end 0.999
+fell (episode terminated): no
+=== rough 16:42
+ground: rough   command: 1.0 0.0 0.0   checkpoint: go1_final   (64 s)
+mean track: 0.5431
+mean linvel (body frame): [ 0.30737454 -0.8440753  -0.7278059 ]
+distance from start: 17.70 m in 20 s
+body height: min -325.464  mean -44.086  max 0.357 m
+upright (1 = level): min -0.868  at the end -0.530
+fell (episode terminated): yes, at step 612 (12.2 s)
+=== finished 16:44

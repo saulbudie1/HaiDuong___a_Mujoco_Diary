@@ -2,21 +2,22 @@
 
 <div align="center">
 
-### Latest test: [Test 8](Tests/Test8/Test8.md)
-**Rough terrain, about 91.75M steps (the run stopped early): the Go1 follows straight, diagonal, circling and fast-spin commands on bumpy ground.**
+### Latest test: [Test 9.3](Tests/Test9.3/Test9.3.md)
+**A new 100 m sine-wave ground: the Test 7 policy, trained on flat ground only, walks across it with speed tracking 0.92 (0.94 on flat ground). No training on this ground yet.**
 
-<a href="Tests/Test8/Test8.md"><img src="Tests/Test8/reward_plot.png" width="560" alt="Test 8, eval reward vs steps"></a>
-<br><sub>eval reward vs steps &nbsp;·&nbsp; 24.1 at 91.75M steps (stopped early, GPU out of memory)</sub>
+<a href="Tests/Test9.3/Test9.3.md"><img src="Assets/Grounds/SimpleUniFormRoughGround_1_preview_closeup.png" width="560" alt="Test 9.3, the new sine-wave ground with a Go1-sized stand-in"></a>
+<br><sub>the new ground: two crossing sine waves, 0.4 m wavelength, crest heights from 1x to 1.5x, 100 x 100 m &nbsp;·&nbsp; the red box is a Go1-sized stand-in for scale &nbsp;·&nbsp; written by Claude, see <a href="Declaration.md">Declaration</a></sub>
 
-<a href="Tests/Test8/Test8.md"><img src="Tests/Test8/preview/top.gif" width="320" alt="Test 8, top view"></a>
-<br><sub>top view &nbsp;·&nbsp; command x = 0.5, y = 0.5, yaw = 3 &nbsp;·&nbsp; mean speed tracking 0.848 (walking in a tight circle)</sub>
-<br><sub>full videos: <a href="Tests/Test8/x0.5_y0.5_yaw3.0/side_x0.5_y0.5_yaw3.0_ckpt_91750400.mp4">side</a> &nbsp;·&nbsp; <a href="Tests/Test8/x0.5_y0.5_yaw3.0/top_x0.5_y0.5_yaw3.0_ckpt_91750400.mp4">top</a> &nbsp;·&nbsp; <a href="Tests/Test8/x0.5_y0.5_yaw3.0/track_x0.5_y0.5_yaw3.0_ckpt_91750400.mp4">track</a></sub>
+<a href="Tests/Test9.3/Test9.3.md"><img src="Tests/Test9.3/preview/track.gif" width="288" alt="Test 9.3, tracking-camera view"></a>
+<a href="Tests/Test9.3/Test9.3.md"><img src="Tests/Test9.3/preview/top.gif" width="288" alt="Test 9.3, top view"></a>
+<br><sub>tracking view and top view &nbsp;·&nbsp; command x = 1 (forward 1 m/s) &nbsp;·&nbsp; mean speed tracking 0.920 &nbsp;·&nbsp; first 6 s of a 20 s run</sub>
+<br><sub>full videos: <a href="Tests/Test9.3/x1.0_y0.0_yaw0.0/side_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final.mp4">side</a> &nbsp;·&nbsp; <a href="Tests/Test9.3/x1.0_y0.0_yaw0.0/top_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final.mp4">top</a> &nbsp;·&nbsp; <a href="Tests/Test9.3/x1.0_y0.0_yaw0.0/track_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final.mp4">track</a></sub>
 
-<a href="Tests/Test8/Test8.md"><img src="Tests/Test8/x0.5_y0.5_yaw3.0/motion_x0.5_y0.5_yaw3.0_ckpt_91750400.png" width="560" alt="Test 8, distance, velocity and rotation for command 0.5, 0.5, 3"></a>
-<br><sub>distance, velocity vs command and rotation &nbsp;·&nbsp; command x = 0.5, y = 0.5, yaw = 3</sub>
+<a href="Tests/Test9.3/Test9.3.md"><img src="Tests/Test9.3/x1.0_y0.0_yaw0.0/motion_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final.png" width="560" alt="Test 9.3, distance, velocity and rotation for command 1, 0, 0"></a>
+<br><sub>distance, velocity vs command and rotation &nbsp;·&nbsp; command x = 1, y = 0, yaw = 0 &nbsp;·&nbsp; 18.5 m in 20 s</sub>
 
-<a href="Tests/Test8/Test8.md"><img src="Tests/Test8/x0.5_y0.5_yaw3.0/trail_x0.5_y0.5_yaw3.0_ckpt_91750400.png" width="480" alt="Test 8, bird's-eye trail for command 0.5, 0.5, 3"></a>
-<br><sub>bird's-eye trail: body centre and head tip, start to end &nbsp;·&nbsp; command x = 0.5, y = 0.5, yaw = 3 &nbsp;·&nbsp; about 9 laps in 20 s</sub>
+<a href="Tests/Test9.3/Test9.3.md"><img src="Tests/Test9.3/x1.0_y0.0_yaw0.0/trail_x1.0_y0.0_yaw0.0_SimpleUniFormRoughGround_1_go1_final.png" width="480" alt="Test 9.3, bird's-eye trail for command 1, 0, 0"></a>
+<br><sub>bird's-eye trail: body centre and head tip (drawn 2 m ahead), start to end &nbsp;·&nbsp; a nearly straight 18.5 m line</sub>
 
 <br>
 
