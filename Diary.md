@@ -57,19 +57,54 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 ---
 
-<details open>
+<details>
 <summary><h2>Oct 22 — More seeds, and one run that collapsed</h2></summary>
-
 
 **Test 9 (seeds).** I trained five more runs on flat ground (seeds 1 to 5) to see whether walking shows up reliably. Training was faster than I guessed, about 20 minutes each. Four of them (seeds 2 to 5) had reward curves like the Test 7 run: about 19 to 20 for a long stretch, then a climb that starts around 52 to 59M steps and ends at 26 to 27. I have not rolled them out yet, so I have not confirmed that they walk. Seed 1 broke. Its reward rose to 18.7 by 18M steps, dropped to about 12, and then fell to 0.2 by 85M. No checkpoint walked, and its speed stayed near zero. But seed 1 was also the only run with 60 evaluations (the others had 31), so I cannot tell whether it was the seed or the setup. In my Colab Test 4 the reward also fell late in training, and that may have been the same kind of collapse, but I do not know.
 
-**Test 9.1 (seed or setup?).** To split the two, I trained seed 1 again with 31 evaluations, and seeds 2 and 3 with 60. Seed 1 with 31 evaluations reached 27.06, and seeds 2 and 3 with 60 stayed below 21 (they ended at 20.05 and 12.78). On Oct 25 I rolled them out on 1 / 0 / 0: seed 1 (31 evaluations) **walks** (`track` 0.968, about 0.95 m/s), and both 60-evaluation runs **stand still** (`track` 0.0187, moved 2 to 3 cm in 20 s, still upright). So seed 1 is not a broken seed, and in my runs the 60-evaluation setup is what stops the walking. Reward misled me again: the run that ended at 12.78 and the one that ended at 20.05 behave the same. I haven't proven why (my guess is that the environments reset every 40 steps instead of 80, but I haven't tested that), and it is three runs against six.
+**Test 9.1 (seed or setup?).** To split the two, I trained seed 1 again with 31 evaluations, and seeds 2 and 3 with 60. Seed 1 with 31 evaluations reached 27.06, and seeds 2 and 3 with 60 stayed below 21 (they ended at 20.05 and 12.78). I rolled them out on Oct 25 (see below).
 
 **What a seed is.** The starting number for all the randomness in training (starting network weights, random commands, noise). Same seed and settings give nearly the same run, and a different seed is different luck. Every run before Test 9 used seed 0.
 
 **The paper.** I looked at the vision part of the paper from the lab (arXiv 2410.03076, Fan Shi is a co-author). I read the PDF text (8 pages): the vision is a very small **simulated depth image** (16 by 12 pixels, with 84 by 84 for one CNN comparison), not RGB and not a real camera. It is rendered depth rays, flattened and fed to a single dense layer, and the paper says no separate image network may be needed. The text speaks of a "field of view" but not where the camera is mounted, and it describes no real-robot experiment. The quadruped is an ANYmal C simulated in MuJoCo MJX, the same framework I use, and the navigation part uses a simple point-mass robot. So their "perception" is a low-resolution depth input to a policy trained in simulation. My Go1 policy is blind, and a small depth or height-map input would be the cheap version of the same idea.
 
 **Accessories.** Next I want to make three weightless accessories for the robot: a pumpkin head, a cone birthday hat and a backpack. They are visual only, so they cannot change how it moves.
+
+</details>
+
+---
+
+<details>
+<summary><h2>Oct 25 — Seed or setup? The 60-evaluation runs stand still</h2></summary>
+
+**Test 9.1 rollouts.** I rolled out the final policy of the three Test 9.1 runs on 1 / 0 / 0 (`--no-video`, one 20 s episode each). Seed 1 with 31 evaluations **walks** (`track` 0.968, about 0.95 m/s, 18.9 m in 20 s). Seeds 2 and 3 with 60 evaluations both **stand still** (`track` 0.0187, moved 2 to 3 cm). So seed 1 is not a broken seed. In my runs, the 60-evaluation setup is what stops the walking: all three runs with 60 evaluations failed, and the runs with 16 or 31 walked or reached 26 to 27 in reward.
+
+**Standing, not fallen.** A fallen robot would also read near-zero speed, so I checked the saved motion data. Both 60-evaluation robots stayed at about 0.3 m body height and upright to the end. I did not watch a video.
+
+**Reward misled me again.** Seed 2 ended at 20.05 and seed 3 at 12.78, but both give the same `track`. A low reward does not mean the robot fell, and I cannot read what the robot does from it.
+
+**`num_evals` is not only a plotting setting.** I had assumed it only sets how often the reward is measured. Here the same seed 1 walked at 31 and collapsed at 60, so it changed the training. My guess (not tested) is that each evaluation interval is cut into chunks and all environments reset at the start of each chunk, which would make a reset every 40 steps at 60 evaluations against 80 at 31. The episode is 1000 steps, so at 60 the robot would only ever see very short pieces. The test is 60 evaluations with `num_resets_per_eval` 5. Until then, I keep `num_evals` the same for runs I compare.
+
+**Limits.** Three runs at 60 against six at 16 or 31, one rollout each, one command, and `num_evals` also changes the random path. I have not tried values in between (such as 45).
+
+</details>
+
+---
+
+<details open>
+<summary><h2>Oct 26 — Test 9.2: it is the reset interval, and my first overnight run went badly</h2></summary>
+
+**What I tried.** Test 9.1 left me with "the 60-evaluation setup stops the walking". My reading of the Brax code (not checked line by line) is that all environments reset every so many steps, and that this interval depends on `num_evals` and `num_resets_per_eval`: every 40 steps at 60 evaluations, 80 at 31, 200 at 16. So I set the interval directly. I trained seed 2 and seed 3 at 60 evaluations with `num_resets_per_eval` 5 (interval 80), and at 31 evaluations with `num_resets_per_eval` 20 (interval 40). I also trained seed 4 at 60 evaluations with the default.
+
+**What came out.** All four pairs follow the interval, not the number of evaluations. With a reset every 80 steps the robot **walks** (`track` 0.955 for seed 2, 0.971 for seed 3), and with a reset every 40 steps it **stands still** (0.018 to 0.019), whichever `num_evals` I used. Seed 4 at 60 evaluations also stands. The failing runs end at a reward of about 18.5, which is the standing level. Each seed keeps its own switch time: seed 2 switches at about 50M steps in both of its walking runs, and seed 3 switches late (after 68M) in both of its. Two seeds, both directions, one rollout each, so it is "in my runs", and I do not know why short intervals stop the walking.
+
+**The sweeps of the old runs.** All five 31-evaluation runs walk at the end (`track` 0.952 to 0.968). The switch is sudden in each, between about 49M and 65M steps for four of them, and after 68.8M for seed 3. Seed 3's reward passed 21 at 55.7M while it still stood still on 1 / 0 / 0, so reward misled me again.
+
+**The first overnight run went badly.** I queued about 3.8 hours of work in one chain: sweeps, six training runs with a sweep after each, then the plots and the copy into the repo at the very end. The laptop was shut off in the morning while run 6 was training (seed 4, 60 evaluations, resets 5, stopped at 52.4M of 96.7M steps). That killed the chain, and because the plots and the copy came last, nothing from the night was in the repo. Five of six runs did finish, so the science is fine, but the plan was poor. Everything lived in WSL until the end, and one bad moment cost the lot. I also had to drop my planned 45-evaluation run, because every setting from 31 to 59 evaluations gives the same 80-step interval at 96M steps, so it would not have shown where the line is.
+
+**New rule: small pieces.** One unit is one training run plus its own sweep (about 30 minutes). After each unit I copy its small files into the repo and plot it before the next one starts, and I check that `go1_final` exists. No more than two or three units chained. Before leaving I check `tmux ls` and the progress file, and the laptop stays plugged in and awake while a job runs.
+
+**Next.** Plot and copy the five finished runs, rerun seed 4 with resets 5 on its own, and try one more interval (for example a reset about every 120 steps) to see where the line is. Details are in [`Tests/Test9.2/Test9.2.md`](Tests/Test9.2/Test9.2.md).
 
 </details>
 
@@ -91,7 +126,9 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 - The robot model is 13 mesh pieces from 5 STL files, joined by 12 hinges, with an invisible simpler shape set used for the physics. Looks and physics are separate.
 - The motors act like springs at the hinges, and the solver is set to one pass per step on purpose, so the "solver iterations" warnings are normal.
 - In the one run I checked with rollouts, walking started between 57.3M and 65.5M steps, suddenly. Four other seeds have reward curves that suggest about 52 to 59M, but I have not rolled them out. About 80M to 100M steps is a sensible budget, and more barely helps (the reward was flat from 98M to 123M).
-- Training can collapse: seed 1's reward fell to 0.2. Test 9.1 suggests it was the 60-evaluation setup and not the seed: seed 1 with 31 evaluations walks (`track` 0.968), and two other seeds with 60 evaluations stand still. Three runs against six, one rollout each, and the reason is not tested.
+- Training can collapse: seed 1's reward fell to 0.2. Test 9.1 (rolled out Oct 25) suggests it was the 60-evaluation setup and not the seed: seed 1 with 31 evaluations walks (`track` 0.968), and two other seeds with 60 evaluations stand still. Three runs against six, one rollout each, and the reason is not tested.
+- `num_evals` changes the training and not only the plot, so it must stay the same for runs I compare. Test 9.2 suggests the reason is the reset interval: a reset every 80 steps walks and every 40 steps stands, whatever `num_evals` is (two seeds, both directions; my reading of the Brax code, not checked line by line).
+- Do not chain a whole night's work into one job. One unit (a run and its sweep) at a time, copied to the repo as it finishes.
 - A reward of 12.8 and a reward of 20.0 can both be a robot that stands still (`track` 0.0187 for both).
 - The vision in the lab's paper is a tiny simulated depth image (read from the PDF text), with no real-robot experiment described.
 
@@ -102,7 +139,7 @@ The short version of [`TestingAndFinding.md`](TestingAndFinding.md). Plain words
 
 
 - Whether seeds 2 to 5 actually walk, and whether the switch lands in the same window for each (needs rollouts).
-- Why the 60-evaluation schedule stops the walking (my guess is the reset every 40 steps, not tested), and where between 31 and 60 the line is.
+- Why a reset every 40 steps stops the walking, and where the line is between 80 and 200 steps (only 40 and 80 are tried). The seed 4 replicate of the fix did not finish.
 - Whether it walks backward and turns in place (the diagonals work).
 - How much a different random seed changes things, and whether the drift following the sideways command is real.
 - Whether more `num_envs` (8192) changes the result.
